@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Year End Party Lucky Draw</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Google Fonts: Kantumruy Pro -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: "Kantumruy Pro", sans-serif;
+        }
+        
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Animations */
+        @keyframes bounce-subtle {
+            0%, 100% { transform: translate(-50%, -10px); }
+            50% { transform: translate(-50%, 0); }
+        }
+        .animate-bounce-subtle {
+            animation: bounce-subtle 2s infinite ease-in-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-slideIn {
+            animation: slideIn 0.3s ease-out forwards;
+        }
+
+        @keyframes blob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob {
+            animation: blob 7s infinite;
+        }
+        .animation-delay-2000 { animation-delay: 2s; }
+        .animation-delay-4000 { animation-delay: 4s; }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-[#1e1b4b] via-[#4c1d95] to-[#db2777] text-white selection:bg-pink-500 selection:text-white overflow-hidden relative">
+
+    <!-- Background Blobs -->
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+        <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-40 animate-blob"></div>
+        <div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-pink-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-40 animate-blob animation-delay-2000"></div>
+        <div class="absolute bottom-[-10%] left-[20%] w-[500px] h-[500px] bg-indigo-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-40 animate-blob animation-delay-4000"></div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notification" class="fixed top-5 left-1/2 transform -translate-x-1/2 z-[100] hidden transition-all duration-300">
+        <div id="notification-content" class="flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl border backdrop-blur-md">
+            <i id="notification-icon" data-lucide="alert-circle"></i>
+            <span id="notification-message" class="font-bold">Message</span>
+        </div>
+    </div>
+
+    <!-- Reset Modal -->
+    <div id="reset-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl p-6 max-w-sm w-full animate-slideIn text-white">
+            <div class="flex justify-center mb-4 text-red-400">
+                <i data-lucide="alert-circle" width="48" height="48"></i>
+            </div>
+            <h3 class="text-xl font-bold text-center mb-2">បញ្ជាក់ការ Reset?</h3>
+            <p class="text-white/70 text-center mb-6 text-sm">
+                ទិន្នន័យអ្នកឈ្នះទាំងអស់នឹងត្រូវលុបចោល។ តើអ្នកចង់បន្តទេ?
+            </p>
+            <div class="flex gap-3">
+                <button onclick="closeResetModal()" class="flex-1 py-3 bg-white/10 hover:bg-white/20 border border-white/10 text-white font-bold rounded-xl transition-all">
+                    ទេ (Cancel)
+                </button>
+                <button onclick="confirmReset()" class="flex-1 py-3 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-red-500/30">
+                    បាទ/ចាស (Reset)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container mx-auto p-4 lg:p-8 max-w-7xl relative z-10 h-screen flex flex-col">
+        
+        <!-- Header -->
+        <header class="glass-panel rounded-2xl shadow-xl p-6 mb-6 flex flex-col md:flex-row justify-between items-center gap-4 flex-shrink-0">
+            <div class="flex items-center gap-4">
+                <div class="bg-gradient-to-br from-pink-500 to-purple-600 p-3 rounded-xl shadow-lg shadow-purple-500/30">
+                    <i data-lucide="trophy" class="text-white" width="32" height="32"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-white uppercase drop-shadow-md">
+                        YEAR END PARTY LUCKY DRAW
+                    </h1>
+                    <p class="text-white/80 text-sm font-medium">កម្មវិធីចាប់ឆ្នោតផ្សងសំណាង</p>
+                    <p class="text-white/60 text-xs mt-1 uppercase tracking-wide font-light">
+                        BROUGHT TO YOU BY: UC HOME, LESSO, HONG KONG restaurants, LUK HOT POT
+                    </p>
+                </div>
+            </div>
+            
+            <div class="flex gap-4 items-center">
+                <div class="flex items-center gap-2 bg-black/20 px-4 py-2 rounded-lg border border-white/10">
+                    <i data-lucide="users" class="text-pink-400" width="18" height="18"></i>
+                    <span class="text-white/80 font-medium">អ្នកលេង: <span id="participant-count" class="text-white font-bold">0</span> នាក់</span>
+                </div>
+                <button onclick="openResetModal()" class="flex items-center gap-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white font-medium border border-white/20 rounded-lg transition-all shadow-sm cursor-pointer active:scale-95">
+                    <i data-lucide="rotate-ccw" width="16" height="16"></i>
+                    Reset
+                </button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 min-h-0">
+            
+            <!-- Left: Prize List -->
+            <div class="lg:col-span-3 order-2 lg:order-1 glass-panel rounded-2xl shadow-xl flex flex-col overflow-hidden h-full max-h-[600px] lg:max-h-none">
+                <div class="p-4 border-b border-white/10 bg-white/5 flex-shrink-0">
+                    <h2 class="text-lg font-bold flex items-center gap-2 text-white">
+                        <i data-lucide="gift" class="text-pink-400"></i>
+                        រង្វាន់ (Prizes)
+                    </h2>
+                </div>
+                <div id="prize-list" class="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-2">
+                    <!-- Prizes will be injected here -->
+                </div>
+            </div>
+
+            <!-- Center: Main Stage -->
+            <div class="lg:col-span-6 flex flex-col gap-6 order-1 lg:order-2 h-full justify-center">
+                <div class="glass-panel rounded-3xl p-8 shadow-2xl flex flex-col items-center justify-center min-h-[400px] text-center relative overflow-hidden">
+                    
+                    <div class="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none"></div>
+
+                    <!-- Current Prize -->
+                    <div class="relative z-10 mb-10">
+                        <div class="inline-block px-4 py-1 bg-green-500/20 backdrop-blur-md rounded-full text-green-300 text-xs font-bold uppercase tracking-wider mb-4 border border-green-500/30">
+                            រង្វាន់បច្ចុប្បន្ន
+                        </div>
+                        <div id="current-prize-img" class="text-7xl mb-4 filter drop-shadow-2xl animate-bounce-subtle">❓</div>
+                        <div id="current-prize-name" class="text-3xl font-bold text-white drop-shadow-md">សូមជ្រើសរើសរង្វាន់</div>
+                    </div>
+
+                    <!-- Rolling Display -->
+                    <div class="relative z-10 w-full max-w-lg">
+                        <div class="bg-black/30 backdrop-blur-md rounded-2xl p-8 border border-white/10 mb-8 shadow-inner">
+                            <div id="display-name" class="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-white to-purple-300 drop-shadow-[0_0_10px_rgba(255,255,255,0.5)] transition-all duration-100">
+                                ត្រៀមខ្លួន...
+                            </div>
+                            <div id="winner-dept" class="mt-4 text-emerald-300 font-bold text-xl animate-pulse hidden">
+                                Dept
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Draw Button -->
+                    <button id="draw-btn" onclick="handleDraw()" class="relative z-10 flex items-center gap-3 px-16 py-5 rounded-full text-xl font-bold text-white shadow-xl transition-all hover:scale-105 active:scale-95 cursor-pointer border border-white/20 bg-gradient-to-r from-pink-500 to-violet-600 hover:from-pink-400 hover:to-violet-500 hover:shadow-pink-500/50">
+                        <i data-lucide="party-popper" width="28" height="28"></i>
+                        ចាប់ឆ្នោត (Draw)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right: Winners -->
+            <div class="lg:col-span-3 order-3 glass-panel rounded-2xl shadow-xl flex flex-col overflow-hidden h-full max-h-[600px] lg:max-h-none">
+                <div class="p-4 border-b border-white/10 bg-white/5 flex-shrink-0">
+                    <h2 class="text-lg font-bold flex items-center gap-2 text-white">
+                        <i data-lucide="trophy" class="text-yellow-400"></i>
+                        អ្នកឈ្នះ (Winners)
+                    </h2>
+                </div>
+                <div id="winners-list" class="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-3">
+                    <div class="h-full flex flex-col items-center justify-center text-white/40">
+                        <p class="text-sm">មិនទាន់មានអ្នកឈ្នះ</p>
+                    </div>
+                </div>
+                <div class="p-3 bg-white/5 border-t border-white/10 text-center flex-shrink-0">
+                    <div class="text-xs text-white/50 font-medium">
+                        អ្នកឈ្នះសរុប: <span id="total-winners">0</span> នាក់
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Logic Script -->
+    <script>
+        // Data
+        const initialPrizes = [
+            { id: 1, name: 'Lucky Horse', total: 5, image: '🐴' },
+            { id: 2, name: 'Bed Sheet', total: 2, image: '🛏️' },
+            { id: 3, name: 'Basin clearance', total: 1, image: '🥣' },
+            { id: 4, name: 'Hotpot set 18$', total: 2, image: '🍲' },
+            { id: 5, name: 'Hotpot set 28$', total: 2, image: '🥘' },
+            { id: 6, name: 'Hotpot set 58$', total: 1, image: '🔥' },
+            { id: 7, name: 'Toshiba Fan', total: 1, image: '💨' },
+            { id: 8, name: '$10.00', total: 3, image: '💵' },
+            { id: 9, name: '$20.00', total: 2, image: '💰' },
+            { id: 10, name: '$30.00', total: 1, image: '💎' },
+        ];
+
+        const initialParticipants = [
+            // UC home
+            { id: 'u1', name: 'Sarin', dept: 'UC home' },
+            { id: 'u2', name: 'Kimteang', dept: 'UC home' },
+            { id: 'u3', name: 'Vanndy', dept: 'UC home' },
+            { id: 'u4', name: 'Theavy', dept: 'UC home' },
+            { id: 'u5', name: 'Kimeay', dept: 'UC home' },
+            { id: 'u6', name: 'Ehong', dept: 'UC home' },
+            { id: 'u7', name: 'Hov', dept: 'UC home' },
+            { id: 'u8', name: 'Nin', dept: 'UC home' },
+            { id: 'u9', name: 'Chantrea', dept: 'UC home' },
+            { id: 'u10', name: 'Chet', dept: 'UC home' },
+            { id: 'u11', name: 'Roth', dept: 'UC home' },
+            { id: 'u12', name: 'Meng EY', dept: 'UC home' },
+            // Lesso
+            { id: 'l1', name: 'Samouern', dept: 'Lesso' },
+            { id: 'l2', name: 'Milo', dept: 'Lesso' },
+            { id: 'l3', name: 'Horng', dept: 'Lesso' },
+            { id: 'l4', name: 'Channak', dept: 'Lesso' },
+            // HK
+            { id: 'h1', name: 'Auntie', dept: 'HK' },
+            { id: 'h2', name: 'Then', dept: 'HK' },
+            { id: 'h3', name: 'Thorng', dept: 'HK' },
+            { id: 'h4', name: 'Sokun', dept: 'HK' },
+            { id: 'h5', name: 'Thin', dept: 'HK' },
+            { id: 'h6', name: 'Ey Ey', dept: 'HK' },
+            { id: 'h7', name: 'Houy', dept: 'HK' },
+            { id: 'h8', name: 'Sok Cheng', dept: 'HK' },
+            { id: 'h9', name: 'Nich', dept: 'HK' },
+            // Luk Hotpot
+            { id: 'luk1', name: 'Li Yong', dept: 'Luk Hotpot' },
+            { id: 'luk2', name: 'Yath Sophanna', dept: 'Luk Hotpot' },
+            { id: 'luk3', name: 'Yath Socheat', dept: 'Luk Hotpot' },
+            { id: 'luk4', name: 'Yin Hieng', dept: 'Luk Hotpot' },
+            { id: 'luk5', name: 'Peut Kimhong', dept: 'Luk Hotpot' },
+            { id: 'luk6', name: 'Chea Teang', dept: 'Luk Hotpot' },
+            { id: 'luk7', name: 'Chea Lai Heang', dept: 'Luk Hotpot' },
+            { id: 'luk8', name: 'Vong Srey Phut', dept: 'Luk Hotpot' },
+            { id: 'luk9', name: 'Sen Sovannarey', dept: 'Luk Hotpot' },
+            { id: 'luk10', name: 'Chov Sevyin', dept: 'Luk Hotpot' },
+            { id: 'luk11', name: 'Me SreyPov', dept: 'Luk Hotpot' },
+            { id: 'luk12', name: 'Loeur koemlyn', dept: 'Luk Hotpot' },
+            { id: 'luk13', name: 'Va Davy', dept: 'Luk Hotpot' },
+            { id: 'luk14', name: 'My Manh', dept: 'Luk Hotpot' },
+            { id: 'luk15', name: 'Orn Muoycheang', dept: 'Luk Hotpot' },
+            { id: 'luk16', name: 'Sin Sopheak', dept: 'Luk Hotpot' },
+            { id: 'luk17', name: 'Chhean nak', dept: 'Luk Hotpot' },
+            { id: 'luk18', name: 'Terk Sa Ran', dept: 'Luk Hotpot' },
+            { id: 'luk19', name: 'Pin Molyny', dept: 'Luk Hotpot' },
+            { id: 'luk20', name: 'Mean Kim Sok', dept: 'Luk Hotpot' },
+            { id: 'luk21', name: 'Rith Piseth', dept: 'Luk Hotpot' },
+            { id: 'luk22', name: 'Khuneung Theany', dept: 'Luk Hotpot' },
+            { id: 'luk23', name: 'Ly Srithou', dept: 'Luk Hotpot' },
+            { id: 'luk24', name: 'Poeut Kimhak', dept: 'Luk Hotpot' },
+            { id: 'luk25', name: 'LY Samnang', dept: 'Luk Hotpot' },
+            { id: 'luk26', name: 'Ngin Heang', dept: 'Luk Hotpot' },
+            { id: 'luk27', name: 'Morm Ratha', dept: 'Luk Hotpot' },
+            { id: 'luk28', name: 'Yeb Chhuylong', dept: 'Luk Hotpot' },
+            { id: 'luk29', name: 'Oeng Khity', dept: 'Luk Hotpot' },
+            { id: 'luk30', name: 'Navy Savorn', dept: 'Luk Hotpot' },
+            { id: 'luk31', name: 'Phn Sreyphyn', dept: 'Luk Hotpot' },
+            { id: 'luk32', name: 'Wang Lipeng', dept: 'Luk Hotpot' },
+        ];
+
+        // State
+        let participants = [...initialParticipants];
+        let prizes = [...initialPrizes];
+        let winners = [];
+        let selectedPrizeId = initialPrizes[0].id;
+        let isSpinning = false;
+        let timer = null;
+
+        // Elements
+        const prizeListEl = document.getElementById('prize-list');
+        const winnersListEl = document.getElementById('winners-list');
+        const drawBtn = document.getElementById('draw-btn');
+        const displayNameEl = document.getElementById('display-name');
+        const winnerDeptEl = document.getElementById('winner-dept');
+        const currentPrizeImgEl = document.getElementById('current-prize-img');
+        const currentPrizeNameEl = document.getElementById('current-prize-name');
+        const participantCountEl = document.getElementById('participant-count');
+        const totalWinnersEl = document.getElementById('total-winners');
+        
+        // Modal & Notification
+        const resetModal = document.getElementById('reset-modal');
+        const notificationEl = document.getElementById('notification');
+        const notifContent = document.getElementById('notification-content');
+        const notifMessage = document.getElementById('notification-message');
+        const notifIcon = document.getElementById('notification-icon');
+
+        // Initial Render
+        renderPrizes();
+        updateDisplay();
+        lucide.createIcons();
+
+        // --- Logic Functions ---
+
+        function getRemainingQty(prizeId) {
+            const wonCount = winners.filter(w => w.prize.id === prizeId).length;
+            const prize = prizes.find(p => p.id === prizeId);
+            return prize.total - wonCount;
+        }
+
+        function renderPrizes() {
+            prizeListEl.innerHTML = '';
+            prizes.forEach(prize => {
+                const remaining = getRemainingQty(prize.id);
+                const isSelected = selectedPrizeId === prize.id;
+                const isOut = remaining === 0;
+
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-3 rounded-xl transition-all border relative overflow-hidden group ${
+                    isSelected 
+                        ? 'bg-gradient-to-r from-green-500/80 to-emerald-600/80 border-green-400/50 shadow-lg shadow-green-500/20 transform scale-[1.02]' 
+                        : isOut 
+                          ? 'bg-black/20 border-transparent opacity-50 cursor-not-allowed'
+                          : 'bg-white/5 border-transparent hover:bg-white/10 hover:border-white/10'
+                }`;
+                btn.onclick = () => {
+                    if (!isOut && !isSpinning) {
+                        selectedPrizeId = prize.id;
+                        renderPrizes();
+                        updateDisplay();
+                    }
+                };
+
+                btn.innerHTML = `
+                    <div class="flex justify-between items-center mb-1 relative z-10">
+                        <span class="text-2xl filter drop-shadow-sm">${prize.image}</span>
+                        <span class="text-xs font-bold px-2 py-1 rounded-full backdrop-blur-sm ${
+                            remaining > 0 ? 'bg-white/20 text-white' : 'bg-red-500/40 text-red-100'
+                        }">
+                            ចំនួន: ${remaining}
+                        </span>
+                    </div>
+                    <div class="font-medium text-sm truncate relative z-10 ${isSelected ? 'text-white font-bold' : 'text-white/80 group-hover:text-white'}">
+                        ${prize.name}
+                    </div>
+                `;
+                prizeListEl.appendChild(btn);
+            });
+        }
+
+        function updateDisplay() {
+            const currentPrize = prizes.find(p => p.id === selectedPrizeId);
+            if (currentPrize) {
+                currentPrizeImgEl.textContent = currentPrize.image;
+                currentPrizeNameEl.textContent = currentPrize.name;
+            }
+            participantCountEl.textContent = participants.length;
+            totalWinnersEl.textContent = winners.length;
+        }
+
+        function renderWinners() {
+            winnersListEl.innerHTML = '';
+            if (winners.length === 0) {
+                winnersListEl.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-white/40">
+                        <p class="text-sm">មិនទាន់មានអ្នកឈ្នះ</p>
+                    </div>`;
+                return;
+            }
+
+            // Show latest first
+            [...winners].forEach((winner, index) => {
+                const div = document.createElement('div');
+                div.className = 'bg-white/5 p-3 rounded-xl border border-white/10 shadow-sm flex items-center gap-3 animate-slideIn hover:bg-white/10 transition-colors';
+                div.innerHTML = `
+                    <div class="bg-gradient-to-br from-blue-500 to-cyan-500 text-white font-bold w-10 h-10 rounded-lg flex items-center justify-center text-sm shadow-md">
+                        ${winners.length - index}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-bold text-white truncate">${winner.name}</div>
+                        <div class="text-xs text-white/60 flex justify-between mt-0.5">
+                            <span>${winner.dept}</span>
+                            <span class="text-yellow-300 font-medium truncate max-w-[80px]">${winner.prize.name}</span>
+                        </div>
+                    </div>
+                `;
+                winnersListEl.prepend(div); // Newest on top
+            });
+        }
+
+        function handleDraw() {
+            if (isSpinning) return;
+
+            const remainingForPrize = getRemainingQty(selectedPrizeId);
+            if (remainingForPrize <= 0) {
+                showNotification("រង្វាន់នេះអស់ហើយ! សូមជ្រើសរើសរង្វាន់ផ្សេង។", "error");
+                return;
+            }
+
+            if (participants.length === 0) {
+                showNotification("អស់ឈ្មោះបុគ្គលិកហើយ!", "error");
+                return;
+            }
+
+            isSpinning = true;
+            winnerDeptEl.classList.add('hidden');
+            drawBtn.classList.add('bg-gray-500/50', 'cursor-wait');
+            drawBtn.classList.remove('bg-gradient-to-r');
+            drawBtn.disabled = true;
+
+            let counter = 0;
+            const speed = 50;
+
+            timer = setInterval(() => {
+                const randomIndex = Math.floor(Math.random() * participants.length);
+                displayNameEl.textContent = participants[randomIndex].name;
+                displayNameEl.classList.add('text-white/50', 'blur-[1px]');
+                displayNameEl.classList.remove('text-transparent', 'bg-clip-text');
+                counter++;
+            }, speed);
+
+            setTimeout(() => {
+                clearInterval(timer);
+                determineWinner();
+            }, 3000);
+        }
+
+        function determineWinner() {
+            let winner;
+            const currentPrize = prizes.find(p => p.id === selectedPrizeId);
+
+            // --- RIGGED LOGIC ---
+            
+            // 1. Bed Sheet (ID 2) -> Kimteang (u2), Roth (u11)
+            if (selectedPrizeId === 2) {
+                const kimteang = participants.find(p => p.id === 'u2');
+                if (kimteang) winner = kimteang;
+                else {
+                    const roth = participants.find(p => p.id === 'u11');
+                    if (roth) winner = roth;
+                }
+            }
+
+            // 2. Toshiba Fan (ID 7) -> Ehong (u6)
+            if (selectedPrizeId === 7) {
+                const ehong = participants.find(p => p.id === 'u6');
+                if (ehong) winner = ehong;
+            }
+
+            // 3. $10.00 (ID 8) -> Kimeay (u5), Theavy (u4), Hov (u7)
+            if (selectedPrizeId === 8) {
+                const kimeay = participants.find(p => p.id === 'u5');
+                if (kimeay) winner = kimeay;
+                else {
+                    const theavy = participants.find(p => p.id === 'u4');
+                    if (theavy) winner = theavy;
+                    else {
+                        const hov = participants.find(p => p.id === 'u7');
+                        if (hov) winner = hov;
+                    }
+                }
+            }
+
+            // 4. $20.00 (ID 9) -> Samouern (l1), Horng (l3)
+            if (selectedPrizeId === 9) {
+                const samouern = participants.find(p => p.id === 'l1');
+                if (samouern) winner = samouern;
+                else {
+                    const horng = participants.find(p => p.id === 'l3');
+                    if (horng) winner = horng;
+                }
+            }
+
+            // 5. $30.00 (ID 10) -> Nin (u8)
+            if (selectedPrizeId === 10) {
+                const nin = participants.find(p => p.id === 'u8');
+                if (nin) winner = nin;
+            }
+
+            // --- RANDOM LOGIC ---
+            if (!winner) {
+                // Filter out UC Home for random draws
+                const eligibleParticipants = participants.filter(p => p.dept !== 'UC home');
+                
+                if (eligibleParticipants.length > 0) {
+                    const finalRandomIndex = Math.floor(Math.random() * eligibleParticipants.length);
+                    winner = eligibleParticipants[finalRandomIndex];
+                } else {
+                    // Fallback if only UC Home left (rare)
+                    if (participants.length > 0) {
+                        const finalRandomIndex = Math.floor(Math.random() * participants.length);
+                        winner = participants[finalRandomIndex];
+                    }
+                }
+            }
+
+            finishDraw(winner, currentPrize);
+        }
+
+        function finishDraw(winner, currentPrize) {
+            isSpinning = false;
+            drawBtn.classList.remove('bg-gray-500/50', 'cursor-wait');
+            drawBtn.classList.add('bg-gradient-to-r');
+            drawBtn.disabled = false;
+
+            if (winner) {
+                displayNameEl.textContent = winner.name;
+                displayNameEl.classList.remove('text-white/50', 'blur-[1px]');
+                displayNameEl.classList.add('text-transparent', 'bg-clip-text');
+                
+                winnerDeptEl.textContent = winner.dept;
+                winnerDeptEl.classList.remove('hidden');
+
+                const newWinner = {
+                    ...winner,
+                    prize: currentPrize,
+                    timestamp: new Date().toLocaleTimeString()
+                };
+
+                winners.push(newWinner);
+                participants = participants.filter(p => p.id !== winner.id);
+
+                renderWinners();
+                renderPrizes(); // Update counts
+                updateDisplay();
+            } else {
+                showNotification("រកមិនឃើញអ្នកឈ្នះដែលសមស្របទេ", "error");
+            }
+        }
+
+        // Reset
+        function openResetModal() {
+            resetModal.classList.remove('hidden');
+        }
+        function closeResetModal() {
+            resetModal.classList.add('hidden');
+        }
+        function confirmReset() {
+            participants = [...initialParticipants];
+            winners = [];
+            displayNameEl.textContent = "ត្រៀមខ្លួន...";
+            winnerDeptEl.classList.add('hidden');
+            
+            closeResetModal();
+            showNotification("ទិន្នន័យត្រូវបាន Reset ដោយជោគជ័យ!", "success");
+            
+            renderPrizes();
+            renderWinners();
+            updateDisplay();
+        }
+
+        // Notification
+        function showNotification(message, type = 'error') {
+            notifMessage.textContent = message;
+            
+            if (type === 'error') {
+                notifContent.className = 'flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl border backdrop-blur-md bg-red-500/80 border-red-400 text-white';
+                // Lucide icon change needs rerender or swap
+                // For simplicity assuming standard layout, we just change class above.
+            } else {
+                notifContent.className = 'flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl border backdrop-blur-md bg-green-500/80 border-green-400 text-white';
+            }
+
+            notificationEl.classList.remove('hidden');
+            setTimeout(() => {
+                notificationEl.classList.add('hidden');
+            }, 3000);
+        }
+
+    </script>
+</body>
+</html>
