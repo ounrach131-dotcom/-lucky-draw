@@ -53,6 +53,15 @@
             animation: slideIn 0.3s ease-out forwards;
         }
 
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-popIn {
+            animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
         @keyframes blob {
             0% { transform: translate(0px, 0px) scale(1); }
             33% { transform: translate(30px, -50px) scale(1.1); }
@@ -69,6 +78,13 @@
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Wheel Shadow */
+        .wheel-container {
+            border-radius: 50%;
+            box-shadow: 0 0 40px rgba(0,0,0,0.6), inset 0 0 25px rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.3);
         }
     </style>
 </head>
@@ -107,6 +123,37 @@
                     បាទ/ចាស (Reset)
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- Big Winner Reveal Modal -->
+    <div id="winner-modal" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-[150] hidden flex items-center justify-center p-4">
+        <div id="winner-modal-content" class="bg-gradient-to-b from-white/10 to-white/5 border border-white/20 rounded-[3rem] p-12 max-w-4xl w-full text-center shadow-[0_0_100px_rgba(236,72,153,0.3)]">
+            <h2 class="text-2xl md:text-3xl text-pink-400 font-bold mb-6 tracking-widest uppercase flex items-center justify-center gap-3">
+                <i data-lucide="sparkles" class="text-yellow-300"></i>
+                សូមអបអរសាទរ!
+                <i data-lucide="sparkles" class="text-yellow-300"></i>
+            </h2>
+            
+            <div id="big-winner-name" class="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-white to-purple-300 drop-shadow-[0_0_20px_rgba(255,255,255,0.5)] mb-6 tracking-wider">
+                Winner Name
+            </div>
+            
+            <div id="big-winner-dept" class="inline-block px-8 py-2 bg-emerald-500/20 border border-emerald-500/30 rounded-full text-emerald-300 text-3xl font-bold mb-10 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                Department
+            </div>
+            
+            <div class="flex flex-col items-center justify-center gap-4 text-2xl text-white/80 bg-black/30 p-6 rounded-3xl border border-white/10 w-fit mx-auto">
+                <span class="text-lg uppercase tracking-widest text-white/50">ឈ្នះរង្វាន់</span>
+                <div class="flex items-center gap-4">
+                    <span id="big-winner-prize-img" class="text-6xl drop-shadow-lg">🎁</span>
+                    <span id="big-winner-prize-name" class="font-black text-4xl text-yellow-300 drop-shadow-md">Prize Name</span>
+                </div>
+            </div>
+            
+            <button onclick="closeWinnerModal()" class="mt-12 px-12 py-4 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-full font-bold text-xl transition-all active:scale-95 shadow-lg">
+                បិទ (Close)
+            </button>
         </div>
     </div>
 
@@ -158,36 +205,53 @@
             </div>
 
             <!-- Center: Main Stage -->
-            <div class="lg:col-span-6 flex flex-col gap-6 order-1 lg:order-2 h-full justify-center">
-                <div class="glass-panel rounded-3xl p-8 shadow-2xl flex flex-col items-center justify-center min-h-[400px] text-center relative overflow-hidden">
+            <div class="lg:col-span-6 flex flex-col gap-4 order-1 lg:order-2 h-full justify-center">
+                <div class="glass-panel rounded-3xl p-6 shadow-2xl flex flex-col items-center justify-center text-center relative overflow-hidden">
                     
                     <div class="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none"></div>
 
                     <!-- Current Prize -->
-                    <div class="relative z-10 mb-10">
-                        <div class="inline-block px-4 py-1 bg-green-500/20 backdrop-blur-md rounded-full text-green-300 text-xs font-bold uppercase tracking-wider mb-4 border border-green-500/30">
-                            រង្វាន់បច្ចុប្បន្ន
+                    <div class="relative z-10 mb-2 flex items-center gap-4">
+                        <div id="current-prize-img" class="text-5xl filter drop-shadow-xl animate-bounce-subtle">❓</div>
+                        <div class="text-left">
+                            <div class="inline-block px-3 py-0.5 bg-green-500/20 backdrop-blur-md rounded-full text-green-300 text-[10px] font-bold uppercase tracking-wider border border-green-500/30 mb-1">
+                                រង្វាន់បច្ចុប្បន្ន
+                            </div>
+                            <div id="current-prize-name" class="text-2xl font-bold text-white drop-shadow-md">សូមជ្រើសរើសរង្វាន់</div>
                         </div>
-                        <div id="current-prize-img" class="text-7xl mb-4 filter drop-shadow-2xl animate-bounce-subtle">❓</div>
-                        <div id="current-prize-name" class="text-3xl font-bold text-white drop-shadow-md">សូមជ្រើសរើសរង្វាន់</div>
                     </div>
 
-                    <!-- Rolling Display -->
-                    <div class="relative z-10 w-full max-w-lg">
-                        <div class="bg-black/30 backdrop-blur-md rounded-2xl p-8 border border-white/10 mb-8 shadow-inner">
-                            <div id="display-name" class="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-white to-purple-300 drop-shadow-[0_0_10px_rgba(255,255,255,0.5)] transition-all duration-100">
-                                ត្រៀមខ្លួន...
+                    <!-- Spinning Wheel Container -->
+                    <div class="relative z-10 w-full flex flex-col items-center mt-2">
+                        <!-- បង្កើនទំហំ max-w-[480px] ដើម្បីឲ្យកងវិលធំជាងមុន -->
+                        <div class="relative flex justify-center items-center w-full max-w-[480px] aspect-square mx-auto mb-4">
+                            <!-- Pointer -->
+                            <div class="absolute -top-6 left-1/2 -translate-x-1/2 z-20 filter drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]">
+                                <svg width="64" height="64" viewBox="0 0 24 24" fill="#f43f5e" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 22L2 6h20L12 22z"/>
+                                </svg>
                             </div>
-                            <div id="winner-dept" class="mt-4 text-emerald-300 font-bold text-xl animate-pulse hidden">
+                            <!-- Wheel Canvas (ទំហំគុណភាពខ្ពស់ 800x800) -->
+                            <div class="wheel-container w-full h-full p-1.5 border-[5px] border-white/20">
+                                <canvas id="wheel-canvas" width="800" height="800" class="w-full h-full rounded-full"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Winner Reveal Box -->
+                        <div id="winner-reveal" class="h-[70px] w-full flex flex-col items-center justify-center opacity-100 transition-opacity duration-300">
+                            <div id="display-name" class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-white to-purple-300 drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">
+                                សូមចុច SPIN
+                            </div>
+                            <div id="winner-dept" class="mt-2 text-emerald-300 font-bold text-lg animate-pulse hidden bg-black/50 px-4 py-0.5 rounded-full border border-emerald-500/30">
                                 Dept
                             </div>
                         </div>
                     </div>
 
                     <!-- Draw Button -->
-                    <button id="draw-btn" onclick="handleDraw()" class="relative z-10 flex items-center gap-3 px-16 py-5 rounded-full text-xl font-bold text-white shadow-xl transition-all hover:scale-105 active:scale-95 cursor-pointer border border-white/20 bg-gradient-to-r from-pink-500 to-violet-600 hover:from-pink-400 hover:to-violet-500 hover:shadow-pink-500/50">
-                        <i data-lucide="party-popper" width="28" height="28"></i>
-                        ចាប់ឆ្នោត (Draw)
+                    <button id="draw-btn" onclick="handleDraw()" class="relative z-10 mt-2 flex items-center gap-3 px-12 py-4 rounded-full text-xl font-black tracking-widest text-white shadow-xl transition-all hover:scale-105 active:scale-95 cursor-pointer border border-white/20 bg-gradient-to-r from-pink-500 to-violet-600 hover:from-pink-400 hover:to-violet-500 hover:shadow-pink-500/50">
+                        <i data-lucide="dices" width="28" height="28" class="animate-pulse"></i>
+                        SPIN !
                     </button>
                 </div>
             </div>
@@ -301,29 +365,41 @@
         let winners = [];
         let selectedPrizeId = initialPrizes[0].id;
         let isSpinning = false;
-        let timer = null;
+        let currentRotation = 0;
 
         // Elements
         const prizeListEl = document.getElementById('prize-list');
         const winnersListEl = document.getElementById('winners-list');
         const drawBtn = document.getElementById('draw-btn');
-        const displayNameEl = document.getElementById('display-name');
+        const wheelCanvas = document.getElementById('wheel-canvas');
+        const ctx = wheelCanvas.getContext('2d');
         const winnerDeptEl = document.getElementById('winner-dept');
         const currentPrizeImgEl = document.getElementById('current-prize-img');
         const currentPrizeNameEl = document.getElementById('current-prize-name');
         const participantCountEl = document.getElementById('participant-count');
         const totalWinnersEl = document.getElementById('total-winners');
+        const displayNameEl = document.getElementById('display-name');
         
         // Modal & Notification
         const resetModal = document.getElementById('reset-modal');
         const notificationEl = document.getElementById('notification');
         const notifContent = document.getElementById('notification-content');
         const notifMessage = document.getElementById('notification-message');
-        const notifIcon = document.getElementById('notification-icon');
+
+        // Big Winner Modal Elements
+        const winnerModal = document.getElementById('winner-modal');
+        const winnerModalContent = document.getElementById('winner-modal-content');
+        const bigWinnerName = document.getElementById('big-winner-name');
+        const bigWinnerDept = document.getElementById('big-winner-dept');
+        const bigWinnerPrizeImg = document.getElementById('big-winner-prize-img');
+        const bigWinnerPrizeName = document.getElementById('big-winner-prize-name');
+
+        const wheelColors = ['#ec4899', '#8b5cf6', '#0ea5e9']; // Pink, Purple, Cyan
 
         // Initial Render
         renderPrizes();
         updateDisplay();
+        drawWheel();
         lucide.createIcons();
 
         // --- Logic Functions ---
@@ -384,6 +460,72 @@
             totalWinnersEl.textContent = winners.length;
         }
 
+        function drawWheel() {
+            ctx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+            const numSlices = participants.length;
+            const centerX = 400; // កណ្តាល Canvas (800 / 2)
+            const centerY = 400; // កណ្តាល Canvas (800 / 2)
+            const radius = 390;  // កាំរង្វង់ (Canvas ទំហំធំជាងមុន)
+            
+            if (numSlices === 0) {
+                // Empty Wheel
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+                ctx.fillStyle = "rgba(0,0,0,0.5)";
+                ctx.fill();
+                return;
+            }
+
+            const sliceAngle = (2 * Math.PI) / numSlices;
+            
+            // សម្រួលទំហំ Font ឲ្យសាកសមនឹងកងវិលធំ
+            let fontSize = 28;
+            if (numSlices > 40) fontSize = 18;
+            else if (numSlices > 20) fontSize = 22;
+
+            for (let i = 0; i < numSlices; i++) {
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                // Draw starting from -90 degrees (top)
+                ctx.arc(centerX, centerY, radius, i * sliceAngle - Math.PI/2, (i + 1) * sliceAngle - Math.PI/2);
+                ctx.closePath();
+                ctx.fillStyle = wheelColors[i % wheelColors.length];
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = "rgba(255,255,255,0.4)";
+                ctx.stroke();
+
+                // Draw Text
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(i * sliceAngle + sliceAngle / 2 - Math.PI/2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = "#ffffff";
+                ctx.font = `bold ${fontSize}px 'Kantumruy Pro', sans-serif`;
+                
+                let name = participants[i].name;
+                if(name.length > 18) name = name.substring(0, 18) + '...';
+                
+                // Add slight shadow for readability
+                ctx.shadowColor = "rgba(0,0,0,0.6)";
+                ctx.shadowBlur = 4;
+                ctx.shadowOffsetX = 1;
+                ctx.shadowOffsetY = 1;
+                
+                ctx.fillText(name, radius - 30, 8); // រំកិលអក្សរចូលក្នុងបន្តិច
+                ctx.restore();
+            }
+
+            // Center inner circle
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 40, 0, 2 * Math.PI); // ពង្រីករង្វង់កណ្តាល
+            ctx.fillStyle = "#1e1b4b";
+            ctx.fill();
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = "#ec4899";
+            ctx.stroke();
+        }
+
         function renderWinners() {
             winnersListEl.innerHTML = '';
             if (winners.length === 0) {
@@ -410,8 +552,109 @@
                         </div>
                     </div>
                 `;
-                winnersListEl.prepend(div); // Newest on top
+                winnersListEl.prepend(div);
             });
+        }
+
+        function determineWinnerLogic() {
+            let winner;
+
+            // =========================================================================
+            // --- RIGGED LOGIC (ការកំណត់អ្នកឈ្នះទុកមុន) ---
+            // បញ្ជីឈ្មោះអ្នកដែលត្រូវឈ្នះរង្វាន់ជាក់លាក់៖
+            // 1. Bed Sheet (២ រង្វាន់)     : Kimteang (u2) និង Roth (u11)
+            // 2. Hotpot set 28$ (១ រង្វាន់): Vanndy (u3)
+            // 3. Toshiba Fan (១ រង្វាន់)   : Ehong (u6)
+            // 4. $10.00 (៣ រង្វាន់)        : Kimeay (u5), Theavy (u4), និង Hov (u7)
+            // 5. $20.00 (២ រង្វាន់)        : Samouern (l1) និង Horng (l3)
+            // 6. $30.00 (១ រង្វាន់)        : Nin (u8)
+            // 
+            // ចំណាំ៖ រង្វាន់ផ្សេងៗទៀតក្រៅពីនេះ នឹងត្រូវចាប់ដោយចៃដន្យសម្រាប់តែ
+            // អ្នកចូលរួមពី Lesso, HK និង Luk Hotpot ប៉ុណ្ណោះ (ដក UC home ចេញ)។
+            // =========================================================================
+            
+            // 1. Bed Sheet (ID 2) -> Kimteang (u2), Roth (u11)
+            if (selectedPrizeId === 2) {
+                const kimteang = participants.find(p => p.id === 'u2');
+                if (kimteang) winner = kimteang;
+                else {
+                    const roth = participants.find(p => p.id === 'u11');
+                    if (roth) winner = roth;
+                }
+            }
+
+            // 2. Hotpot set 28$ (ID 5) -> Vanndy (u3)
+            if (selectedPrizeId === 5) {
+                const vanndy = participants.find(p => p.id === 'u3');
+                if (vanndy) winner = vanndy;
+            }
+
+            // 3. Toshiba Fan (ID 7) -> Ehong (u6)
+            if (selectedPrizeId === 7) {
+                const ehong = participants.find(p => p.id === 'u6');
+                if (ehong) winner = ehong;
+            }
+
+            // 4. $10.00 (ID 8) -> Kimeay (u5), Theavy (u4), Hov (u7)
+            if (selectedPrizeId === 8) {
+                const kimeay = participants.find(p => p.id === 'u5');
+                if (kimeay) winner = kimeay;
+                else {
+                    const theavy = participants.find(p => p.id === 'u4');
+                    if (theavy) winner = theavy;
+                    else {
+                        const hov = participants.find(p => p.id === 'u7');
+                        if (hov) winner = hov;
+                    }
+                }
+            }
+
+            // 5. $20.00 (ID 9) -> Samouern (l1), Horng (l3)
+            if (selectedPrizeId === 9) {
+                const samouern = participants.find(p => p.id === 'l1');
+                if (samouern) winner = samouern;
+                else {
+                    const horng = participants.find(p => p.id === 'l3');
+                    if (horng) winner = horng;
+                }
+            }
+
+            // 6. $30.00 (ID 10) -> Nin (u8)
+            if (selectedPrizeId === 10) {
+                const nin = participants.find(p => p.id === 'u8');
+                if (nin) winner = nin;
+            }
+
+            // --- RANDOM LOGIC (ចាប់ចៃដន្យសម្រាប់រង្វាន់ដែលនៅសល់) ---
+            if (!winner) {
+                // Filter out UC Home for random draws
+                const eligibleParticipants = participants.filter(p => p.dept !== 'UC home');
+                
+                if (eligibleParticipants.length > 0) {
+                    const finalRandomIndex = Math.floor(Math.random() * eligibleParticipants.length);
+                    winner = eligibleParticipants[finalRandomIndex];
+                } else {
+                    // Fallback if only UC Home left
+                    if (participants.length > 0) {
+                        const finalRandomIndex = Math.floor(Math.random() * participants.length);
+                        winner = participants[finalRandomIndex];
+                    }
+                }
+            }
+
+            return winner;
+        }
+
+        function setButtonSpinningState(spinning) {
+            if (spinning) {
+                drawBtn.classList.add('bg-gray-500/50', 'cursor-wait');
+                drawBtn.classList.remove('bg-gradient-to-r', 'from-pink-500', 'to-violet-600', 'hover:from-pink-400', 'hover:to-violet-500', 'hover:shadow-pink-500/50');
+                drawBtn.disabled = true;
+            } else {
+                drawBtn.classList.remove('bg-gray-500/50', 'cursor-wait');
+                drawBtn.classList.add('bg-gradient-to-r', 'from-pink-500', 'to-violet-600', 'hover:from-pink-400', 'hover:to-violet-500', 'hover:shadow-pink-500/50');
+                drawBtn.disabled = false;
+            }
         }
 
         function handleDraw() {
@@ -430,128 +673,92 @@
 
             isSpinning = true;
             winnerDeptEl.classList.add('hidden');
-            drawBtn.classList.add('bg-gray-500/50', 'cursor-wait');
-            drawBtn.classList.remove('bg-gradient-to-r');
-            drawBtn.disabled = true;
+            displayNameEl.textContent = "កំពុងចាប់...";
+            setButtonSpinningState(true);
 
-            let counter = 0;
-            const speed = 50;
-
-            timer = setInterval(() => {
-                const randomIndex = Math.floor(Math.random() * participants.length);
-                displayNameEl.textContent = participants[randomIndex].name;
-                displayNameEl.classList.add('text-white/50', 'blur-[1px]');
-                displayNameEl.classList.remove('text-transparent', 'bg-clip-text');
-                counter++;
-            }, speed);
-
-            setTimeout(() => {
-                clearInterval(timer);
-                determineWinner();
-            }, 3000);
-        }
-
-        function determineWinner() {
-            let winner;
+            const winner = determineWinnerLogic();
             const currentPrize = prizes.find(p => p.id === selectedPrizeId);
 
-            // --- RIGGED LOGIC ---
-            
-            // 1. Bed Sheet (ID 2) -> Kimteang (u2), Roth (u11)
-            if (selectedPrizeId === 2) {
-                const kimteang = participants.find(p => p.id === 'u2');
-                if (kimteang) winner = kimteang;
-                else {
-                    const roth = participants.find(p => p.id === 'u11');
-                    if (roth) winner = roth;
-                }
-            }
-
-            // 2. Toshiba Fan (ID 7) -> Ehong (u6)
-            if (selectedPrizeId === 7) {
-                const ehong = participants.find(p => p.id === 'u6');
-                if (ehong) winner = ehong;
-            }
-
-            // 3. $10.00 (ID 8) -> Kimeay (u5), Theavy (u4), Hov (u7)
-            if (selectedPrizeId === 8) {
-                const kimeay = participants.find(p => p.id === 'u5');
-                if (kimeay) winner = kimeay;
-                else {
-                    const theavy = participants.find(p => p.id === 'u4');
-                    if (theavy) winner = theavy;
-                    else {
-                        const hov = participants.find(p => p.id === 'u7');
-                        if (hov) winner = hov;
-                    }
-                }
-            }
-
-            // 4. $20.00 (ID 9) -> Samouern (l1), Horng (l3)
-            if (selectedPrizeId === 9) {
-                const samouern = participants.find(p => p.id === 'l1');
-                if (samouern) winner = samouern;
-                else {
-                    const horng = participants.find(p => p.id === 'l3');
-                    if (horng) winner = horng;
-                }
-            }
-
-            // 5. $30.00 (ID 10) -> Nin (u8)
-            if (selectedPrizeId === 10) {
-                const nin = participants.find(p => p.id === 'u8');
-                if (nin) winner = nin;
-            }
-
-            // --- RANDOM LOGIC ---
             if (!winner) {
-                // Filter out UC Home for random draws
-                const eligibleParticipants = participants.filter(p => p.dept !== 'UC home');
-                
-                if (eligibleParticipants.length > 0) {
-                    const finalRandomIndex = Math.floor(Math.random() * eligibleParticipants.length);
-                    winner = eligibleParticipants[finalRandomIndex];
-                } else {
-                    // Fallback if only UC Home left (rare)
-                    if (participants.length > 0) {
-                        const finalRandomIndex = Math.floor(Math.random() * participants.length);
-                        winner = participants[finalRandomIndex];
-                    }
-                }
+                isSpinning = false;
+                showNotification("រកមិនឃើញអ្នកឈ្នះដែលសមស្របទេ (ប្រហែលមកពីអស់ឈ្មោះក្នុងបញ្ជី)", "error");
+                setButtonSpinningState(false);
+                return;
             }
 
-            finishDraw(winner, currentPrize);
+            // --- Calc Spin Angle ---
+            const numSlices = participants.length;
+            const sliceAngle = 360 / numSlices;
+            const winnerIndex = participants.findIndex(p => p.id === winner.id);
+            
+            // To bring the winning slice to the top (0 deg/ -90 Canvas deg)
+            const targetAngle = 360 - ((winnerIndex * sliceAngle) + (sliceAngle / 2));
+            
+            // Add slight randomness within the slice so it doesn't land perfectly in the center every time
+            const randomOffset = (Math.random() - 0.5) * (sliceAngle * 0.7);
+            
+            // 5 full spins + target angle + random offset
+            const spins = 5 * 360; 
+            const nextRotation = currentRotation + spins + targetAngle - (currentRotation % 360) + randomOffset;
+
+            // Apply CSS animation
+            wheelCanvas.style.transition = `transform 4s cubic-bezier(0.15, 0.85, 0.15, 1)`;
+            wheelCanvas.style.transform = `rotate(${nextRotation}deg)`;
+            currentRotation = nextRotation;
+
+            setTimeout(() => {
+                finishDraw(winner, currentPrize);
+            }, 4000); // 4s animation duration
         }
 
         function finishDraw(winner, currentPrize) {
             isSpinning = false;
-            drawBtn.classList.remove('bg-gray-500/50', 'cursor-wait');
-            drawBtn.classList.add('bg-gradient-to-r');
-            drawBtn.disabled = false;
+            setButtonSpinningState(false);
+            
+            // Show Winner in the main stage text
+            displayNameEl.textContent = winner.name;
+            winnerDeptEl.textContent = winner.dept;
+            winnerDeptEl.classList.remove('hidden');
 
-            if (winner) {
-                displayNameEl.textContent = winner.name;
-                displayNameEl.classList.remove('text-white/50', 'blur-[1px]');
-                displayNameEl.classList.add('text-transparent', 'bg-clip-text');
-                
-                winnerDeptEl.textContent = winner.dept;
-                winnerDeptEl.classList.remove('hidden');
+            // --- Show Big Winner Modal ---
+            bigWinnerName.textContent = winner.name;
+            bigWinnerDept.textContent = winner.dept;
+            bigWinnerPrizeImg.textContent = currentPrize.image;
+            bigWinnerPrizeName.textContent = currentPrize.name;
+            
+            winnerModal.classList.remove('hidden');
+            // Trigger animation
+            winnerModalContent.classList.remove('animate-popIn');
+            void winnerModalContent.offsetWidth; // trigger reflow
+            winnerModalContent.classList.add('animate-popIn');
 
-                const newWinner = {
-                    ...winner,
-                    prize: currentPrize,
-                    timestamp: new Date().toLocaleTimeString()
-                };
+            // Save winner data
+            const newWinner = {
+                ...winner,
+                prize: currentPrize,
+                timestamp: new Date().toLocaleTimeString()
+            };
 
-                winners.push(newWinner);
-                participants = participants.filter(p => p.id !== winner.id);
+            winners.push(newWinner);
+            
+            // ដកឈ្មោះអ្នកឈ្នះចេញពីបញ្ជី
+            participants = participants.filter(p => p.id !== winner.id);
 
-                renderWinners();
-                renderPrizes(); // Update counts
-                updateDisplay();
-            } else {
-                showNotification("រកមិនឃើញអ្នកឈ្នះដែលសមស្របទេ", "error");
-            }
+            renderWinners();
+            renderPrizes(); // Update counts
+            updateDisplay();
+        }
+
+        function closeWinnerModal() {
+            winnerModal.classList.add('hidden');
+            displayNameEl.textContent = "សូមចុច SPIN";
+            winnerDeptEl.classList.add('hidden');
+            
+            // លុះត្រាតែចុចបិទ Modal ទើបកងវិល Reset ដើម្បីធានាថាឈ្មោះថ្មីត្រូវបានគូរត្រឹមត្រូវ
+            wheelCanvas.style.transition = 'none';
+            currentRotation = 0;
+            wheelCanvas.style.transform = `rotate(0deg)`;
+            drawWheel();
         }
 
         // Reset
@@ -564,7 +771,13 @@
         function confirmReset() {
             participants = [...initialParticipants];
             winners = [];
-            displayNameEl.textContent = "ត្រៀមខ្លួន...";
+            
+            wheelCanvas.style.transition = 'none';
+            currentRotation = 0;
+            wheelCanvas.style.transform = `rotate(0deg)`;
+            drawWheel();
+            
+            displayNameEl.textContent = "សូមចុច SPIN";
             winnerDeptEl.classList.add('hidden');
             
             closeResetModal();
@@ -581,8 +794,6 @@
             
             if (type === 'error') {
                 notifContent.className = 'flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl border backdrop-blur-md bg-red-500/80 border-red-400 text-white';
-                // Lucide icon change needs rerender or swap
-                // For simplicity assuming standard layout, we just change class above.
             } else {
                 notifContent.className = 'flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl border backdrop-blur-md bg-green-500/80 border-green-400 text-white';
             }
